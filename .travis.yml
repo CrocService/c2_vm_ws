@@ -8,6 +8,8 @@ language: python
 python:
   - '2.7'
 
+script: nosetests
+
 env:
   global:
     - COMMIT=${TRAVIS_COMMIT::8}
