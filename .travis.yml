@@ -1,0 +1,25 @@
+sudo: required
+
+services:
+  - docker
+
+language: python
+
+python:
+  - '2.7'
+
+env:
+  global:
+    - COMMIT=${TRAVIS_COMMIT::8}
+    - secure: "HWFzpHBBAagcV8b4wNZWHNi9oFs/jihAr/tR59nOfKSK+fqqT/+s7qcazjHb6zfxrWCVSyeH4ttgLKsiAEFnoQsyIiv+SJfzXpk1WDB08A5CGlEQPlZmJIM8tS4NoVkQFNH/PlimU49B+X5ZpUUVy3tWAsfPq3h2BlU8Tcu+1RWjvElwOqgtgEVn6YRZxLT9bt4w+9Z+cKLftGlWhw6P4GJrTq3syiddJir8dO7XbtScajOs2lhdq7B4BL9Zd4VdOnyRUDG4ZyOOe6h9/+R+cvWGuFAW4ICH+MwDaQDAn7OucVD7JCSas6bAHuJBb48+FlUkpngtzrO/guUG4zl+SbJtL6MLwDNIODx4aGoEjkswECj18+4fKny/x9b+HTpEpuFUQJvejzSvMrTnnIwbMLJaRglY+XSHAbpc2cTLE2S4QxPR0jW1A0hjq7FLVHfuRIR7xsUSv2pL5XaOKNsVj6kZ+iU/Z+6G1Buh2o6e1Zl19q6WZHwbMfnmKHQVFng65RnY4dFQTgfYPeqQd3k2fvYMbIo/vhGffVznPPRFnXTpS4HmvyC4aQyVrB0qcLLf0xLEboeXw0cBSq0tJYxxD8VNjx4Xam6s2oIF/HXwbeAz00upBdksiFy9boOtUCUrVz4GIXyFf4WwS+u0YITvRPgzfy4lX9a2oIqVlotMYM4=" #DOCKER_EMAIL
+    - secure: "pYXSQFddhx0YCuBvv4Kg9/Pkg7YMXj9rSU7v12ma7aYAfJEBnEa4bCWONIyCKFChGLLF9ds5fBwKHIcH2gDXmrDqg3ZrBOr4aHnFbgMBRLM5zAw4KEMrKTOQa7y6c/ObbP5DH3FmSbbp9E4s3TzGms9BQXTXG1gzyl2pAC5LKxi1BoVbt++ZkGFHMzJzfBqABJRY0ZToJnbVzDi/zRWPfomWIhautWHspdY2SD6Mxwh8Lw0XZZWzzJsdpIYAvlVK84TyWWn4PrDH6aWZC3jWdi6InAA1nyx21pbOLwpkbjFRdZ2XLuG+v6VRH8JWW66Xr43QzwbTpFZLYCwM/P81DGXU6dnnRuefwX/4Xt4zITpzpVCv8t61oSd/r+ilqgco3zlrd0kUPfoHw/vSFeG+orMBDREgO0oVTP6H0TNjH4XWDwqIpsDMlKvH1XI4U7VXF/Eqw8bnHONpzP49QIxtA+fXnPFk/ArrPAgiN7Eb5YMcgWbMDcrbK1TWnTl2paEZvida9VevzfwI4VQ20k5HvzwhG2ED8KHgiPeLviVqsLUVEENDFmwRq6rEK7vPWSehCEJ2ziLC6Srx9PvmtWqe9hlCeF0bJXx2U7uCoVrZuNiZapbqd9KSds/hqZYXVkq3vtuTUQOcDMWNSHADpTsuLvMfCM2qucteDme6Zo2b7Mk=" #DOCKER_USER
+    - secure: "TPtHkiPG5W6N57Nm08kVUGQQy8275idFQmZlKWQFZcBNEjCrhKXFAqqOILtP0mCxqKQr9noXVFfhwTwekR75PdCjtkjG1RsRcACC9e+8JK3r/zPzLYMT9bZePBFlE3tCQkn2c1xP+5Wpa4i7Zj4Cs4aSqe4RDd+Sn6k5Ltt2PH9Mj/ODOehrtXUVgC0lLi/VpWE5QzMrbfWufp/rp5GGNEgGPlwMb+l6czcFU9NisQgpyVnhQwZUSuoTUBYVNER/Gh3XAeZK5yhGa/Cvet4UySxVNh7KqzJWaEeLzWnHJr8KiB3huQj7s0EOMCshhtTdIoTTH3Lo9gsUnkJppycKZb/dUwkbH0+KRdFe6Rq4dECT0mbjR3XNk3d3AmOO7tFDelT3HN5VPQDKldtn2uKDFzxVy9N2dKSEVS2OQ7DyUtFkodi/MeY4EcO5eUcLtUrQkmKKqtYIGVNy+DUasTzw+5s4kP6QvB7roK/Nb5TANUIS9NowaMwsGT2p1+WOSfWV4Ztd4r2zV/nbRdO3oWaQU8k3U9il/hqSfwdZVO8N3O1MmcyXEoA0k6CF23RwFGvaZlRkmTtGPWtwXk+rk5hLGO3HG6wlS3+sN6bqWx9OSLBYtdAnaOx0rJwlqqnYoZcEn0t3qQ6T24s6wSXWj2i3fdX3cuEegfmH4eaeK5OoIxU=" #DOCKER_PASS
+
+after_success:
+  - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
+  - export REPO=avmaximov/c2_vm_ws
+  - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_BRANCH ; fi`
+  - docker build -f Dockerfile -t $REPO:$COMMIT .
+  - docker tag $REPO:$COMMIT $REPO:$TAG
+  - docker tag $REPO:$COMMIT $REPO:travis-$TRAVIS_BUILD_NUMBER
+  - docker push $REPO  
