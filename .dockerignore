@@ -1,0 +1,4 @@
+*.pyc
+venv
+*.md
+c2rc.sh

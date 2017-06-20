@@ -1,0 +1,7 @@
+# use glob syntax.
+syntax: glob
+
+venv
+c2rc.sh
+*.pyc
+
