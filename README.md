@@ -96,22 +96,31 @@ API endpoints will be opened if *APP_TOKEN* is not set.
 
 ```sh
 echo "Getting VM list:"
-curl http://service.isin.digital/api/v1/vms?token=TZCBgcRYW3BYITzL%2BmQj%2Bt1aXINxn1aasdfasfas8lsBlcvPWdqUOCWTrBWGzoDLkgTUoM792gtzrPDhQ%3D%3D
+curl http://localhost:5000/api/v1/vms?token=TZCBgcRYW3BYITzL%2BmQj%2Bt1aXINxn1aasdfasfas8lsBlcvPWdqUOCWTrBWGzoDLkgTUoM792gtzrPDhQ%3D%3D
 
 echo "Launching new VM:"
-curl -d '{"template_id":"cmi-2A21A30D", "key_name":"Lenovo-T410", "instance_type":"c1.large", "security_group":"subnet-61ECBB2A"}' -H "Content-Type: application/json" -X POST http://service.isin.digital/api/v1/vms?token=TZCBgcRYW3BYITzL%2BmQj%2Bt1aXINxn1aasdfasfas8lsBlcvPWdqUOCWTrBWGzoDLkgTUoM792gtzrPDhQ%3D%3D
+curl --data "description=Test+instance%21&instance_type=m1.large&key_name=Lenovo-T410&user_data=some+data&image_id=cmi-2A21A30D&security_groups=%5B%27subnet-61ECBB2A%27%5D" http://localhost:5000/api/v1/vms?token=TZCBgcRYW3BYITzL%2BmQj%2Bt1aXINxn1aasdfasfas8lsBlcvPWdqUOCWTrBWGzoDLkgTUoM792gtzrPDhQ%3D%3D
 
 echo "Updating VM"
 echo "Not implemented"
 
-echo "Deleting VM: i-AB6C31A1"
-curl -H "Content-Type: application/json" -X DELETE "http://service.isin.digital/api/v1/vms/i-AB6C31A1?token=TZCBgcRYW3BYITzL%2BmQj%2Bt1aXINxn1aasdfasfas8lsBlcvPWdqUOCWTrBWGzoDLkgTUoM792gtzrPDhQ%3D%3D"
+echo "Deleting VM: i-CDC79C80"
+curl -X DELETE http://localhost:5000/api/v1/vms/i-CDC79C80?token=TZCBgcRYW3BYITzL%2BmQj%2Bt1aXINxn1aasdfasfas8lsBlcvPWdqUOCWTrBWGzoDLkgTUoM792gtzrPDhQ%3D%3D"
 ```
 
-You may use
+## Some tips
+
+### Encoding token to base64
 
 ```sh
 python -c "import sys; import urllib; a={'token':'TZCBgcRYW3BYITzL+mQj+t1aXINxn1aasdfasfas8lsBlcvPWdqUOCWTrBWGzoDLkgTUoM792gtzrPDhQ=='}; print urllib.urlencode(a)"
 ```
 
-to urlencode base64 encoded token.
+### Forming request for create VM method
+
+```python
+import urllib
+a = {'image_id':'cmi-2A21A30D', 'key_name':'Lenovo-T410', 'instance_type':'m1.large', 'security_groups':["subnet-61ECBB2A"], 'description':'Test instance!', 'user_data':'some data'}
+urllib.urlencode(a)
+```
+
