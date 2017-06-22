@@ -1,6 +1,6 @@
 astroid==1.5.3
 backports.functools-lru-cache==1.4
--e git+https://github.com/C2Devel/boto.git@f0a4312d20f22fe663fe306bd80af98e0a4cd180#egg=boto
+-e git+https://github.com/C2Devel/boto.git@2.46.1-CROC2#egg=boto
 c2client==0.3
 click==6.7
 configparser==3.5.0
