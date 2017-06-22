@@ -6,6 +6,8 @@ import time
 import random
 import string
 import pprint
+import json
+import jsonpickle
 from functools import wraps
 import boto
 from flask import Flask, jsonify, request, abort
@@ -77,18 +79,14 @@ class VmManager(object):
             aws_access_key_id=EC2_ACCESS_KEY,
             aws_secret_access_key=EC2_SECRET_KEY
         )
-
-    def launch_vm(self, template_id, key_name, instance_type, security_group):
+    
+    def launch_vm(self, **kwargs):
         ips_count = self.get_allocated_ip_addresses_count()
         instances_count = self.get_launched_instaces_count()
         if ips_count <= instances_count:
             self.conn.allocate_address()
-        reservation = self.conn.run_instances(
-            image_id=template_id,
-            key_name=key_name,
-            instance_type=instance_type,
-            security_groups=[security_group])
-        return reservation.instances[0].id
+        reservation = self.conn.run_instances(**kwargs)
+        return reservation.instances[0]
 
     def delete_vm(self, vm_id):
         instance_address = None
@@ -106,15 +104,11 @@ class VmManager(object):
 
     def list_vms(self):
         data = []
-        reservations = self.conn.get_all_instances()#filters=filters)
+        reservations = self.conn.get_all_instances()
         for r in reservations:
             for inst in r.instances:
-                #pp.pprint(inst.__dict__)
-                instance_data = {
-                    'id':inst.id,
-                    'ip_address': inst.ip_address
-                }
-                data.append(instance_data)
+                inst_data = json.loads(jsonpickle.encode(inst.__dict__))
+                data.append(inst_data)
         return data
 
     def get_instance_status(self, instance_id):
@@ -169,14 +163,35 @@ def getVms():
 @application.route('/api/v1/vms', methods=['POST'])
 @require_appkey
 def createVm():
-    template_id = request.args.get('template_id', DEFAULT_TEMPLATE)
-    key_name = request.args.get('key_name', DEFAULT_KEY_NAME)
-    instance_type = request.args.get('instance_type', DEFAULT_INSTANCE_TYPE)
-    security_group = request.args.get('security_group', DEFAULT_SECURITY_GROUP)
-    manager = VmManager()
-    id = manager.launch_vm(template_id, key_name, instance_type, security_group)
+    req_data = request.form.to_dict()
+    if 'security_groups' in req_data:
+        req_data['security_groups'] = eval(req_data['security_groups'])
+    else:
+        req_data['security_groups'] = [ DEFAULT_SECURITY_GROUP ]
+    if 'image_id' not in req_data:
+        req_data['image_id'] = DEFAULT_TEMPLATE
+    if 'key_name' not in req_data:
+        req_data['key_name'] = DEFAULT_KEY_NAME
+    if 'instance_type' not in req_data:
+        req_data['instance_type'] = DEFAULT_INSTANCE_TYPE
 
-    return jsonify(instance={'id':id})
+    #return jsonify(req_data)
+    '''
+    {
+      "description": "Test instance!",
+      "image_id": "cmi-2A21A30D",
+      "instance_type": "m1.large",
+      "key_name": "Lenovo-T410",
+      "security_groups": [
+        "subnet-61ECBB2A"
+      ],
+      "user_data": "some data"
+    }
+    '''
+    manager = VmManager()
+    instance = manager.launch_vm(**req_data)
+
+    return jsonify(instance=json.loads(jsonpickle.encode(instance.__dict__)))
 
 
 @application.route('/api/v1/vms/<string:id>', methods=['DELETE'])
