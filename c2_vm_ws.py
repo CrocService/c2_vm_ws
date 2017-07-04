@@ -116,6 +116,15 @@ class VmManager(object):
                 data.append(instance_data)
                 
         return data
+    
+    def get_instance_ip(self, instance_id):
+        reservations = self.conn.get_all_instances()
+        for r in reservations:
+            for inst in r.instances:
+                if instance_id == inst.id:
+                    return str(inst.ip_address)
+        return None
+
 
     def get_instance_status(self, instance_id):
         reservations = self.conn.get_all_instances()
@@ -155,6 +164,14 @@ def sha512_crypt(password, salt=None, rounds=None):
 def hello():
 
     return 'Hi!'
+
+@application.route('/api/v1/vmsip/<string:id>', methods=['GET'])
+@require_appkey
+def getVms():
+    manager = VmManager()
+    data = manager.get_instance_ip(id)
+ 
+    return jsonify(instances=data)
 
 
 @application.route('/api/v1/vms', methods=['GET'])
