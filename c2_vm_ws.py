@@ -107,8 +107,14 @@ class VmManager(object):
         reservations = self.conn.get_all_instances()
         for r in reservations:
             for inst in r.instances:
-                inst_data = json.loads(jsonpickle.encode(inst.__dict__))
-                data.append(inst_data)
+                #inst_data = json.loads(jsonpickle.encode(inst.__dict__))
+                #data.append(inst_data)
+                instance_data = {
+                                'id':inst.id,
+                                'ip_address':inst.ip_address
+				                }
+                data.append(instance_data)
+                
         return data
 
     def get_instance_status(self, instance_id):
