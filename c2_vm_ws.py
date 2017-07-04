@@ -165,7 +165,7 @@ def hello():
 
     return 'Hi!'
 
-@application.route('/api/v1/vms/<string:id>', methods=['GET'])
+@application.route('/api/v1/vmsip/<string:id>', methods=['POST'])
 @require_appkey
 def get_instance_ip():
     manager = VmManager()
